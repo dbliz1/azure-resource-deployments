@@ -1,87 +1,90 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-      {
-        "type": "Microsoft.Resources/resourceGroups",
-        "apiVersion": "2021-04-01",
-        "location": "eastus",
-        "name": "RG-Dev.Nis-EastUS"
-      },
-      {
-        "type": "Microsoft.Resources/resourceGroups",
-        "apiVersion": "2021-04-01",
-        "location": "westus",
-        "name": "RG-Dev.Nis-WestUS"
-      },
-      {
-        "type": "Microsoft.Network/virtualNetworks",
-        "apiVersion": "2021-05-01",
-        "name": "VNet01-Dev.Nis-EastUS",
-        "location": "eastus",
-        "dependsOn": [
-          "[resourceId('Microsoft.Resources/resourceGroups', 'RG-EastUS')]"
-        ],
-        "properties": {
-          "addressSpace": {
-            "addressPrefixes": ["10.1.0.0/16"]
-          },
-          "subnets": [
-            {
-              "name": "Subnet1",
-              "properties": {
-                "addressPrefix": "10.1.1.0/24"
-              }
-            },
-            {
-              "name": "Subnet2",
-              "properties": {
-                "addressPrefix": "10.1.2.0/24"
-              }
-            },
-            {
-              "name": "GatewaySubnet",
-              "properties": {
-                "addressPrefix": "10.1.255.0/27"
-              }
-            }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "location": "eastus",
+      "name": "RG-Dev.Nis-EastUS"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "location": "westus",
+      "name": "RG-Dev.Nis-WestUS"
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
+      "name": "VNet01-Dev.Nis-EastUS",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups', 'RG-Dev.Nis-EastUS')]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/16"
           ]
-        }
-      },
-      {
-        "type": "Microsoft.Network/virtualNetworks",
-        "apiVersion": "2021-05-01",
-        "name": "VNet02-Dev.Nis-WestUS",
-        "location": "westus",
-        "dependsOn": [
-          "[resourceId('Microsoft.Resources/resourceGroups', 'RG-WestUS')]"
-        ],
-        "properties": {
-          "addressSpace": {
-            "addressPrefixes": ["10.2.0.0/16"]
-          },
-          "subnets": [
-            {
-              "name": "Subnet1",
-              "properties": {
-                "addressPrefix": "10.2.1.0/24"
-              }
-            },
-            {
-              "name": "Subnet2",
-              "properties": {
-                "addressPrefix": "10.2.2.0/24"
-              }
-            },
-            {
-              "name": "GatewaySubnet",
-              "properties": {
-                "addressPrefix": "10.2.255.0/27"
-              }
+        },
+        "subnets": [
+          {
+            "name": "Subnet1",
+            "properties": {
+              "addressPrefix": "10.1.1.0/24"
             }
-          ]
-        }
+          },
+          {
+            "name": "Subnet2",
+            "properties": {
+              "addressPrefix": "10.1.2.0/24"
+            }
+          },
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "10.1.255.0/27"
+            }
+          }
+        ]
       }
-    ]
-  }
-  
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
+      "name": "VNet02-Dev.Nis-WestUS",
+      "location": "westus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups', 'RG-Dev.Nis-WestUS')]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.2.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "Subnet1",
+            "properties": {
+              "addressPrefix": "10.2.1.0/24"
+            }
+          },
+          {
+            "name": "Subnet2",
+            "properties": {
+              "addressPrefix": "10.2.2.0/24"
+            }
+          },
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "10.2.255.0/27"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
