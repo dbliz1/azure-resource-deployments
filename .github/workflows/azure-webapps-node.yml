@@ -31,10 +31,10 @@ jobs:
       - uses: azure/arm-deploy@v2
         with:
           resourceGroupName: RG-Dev.Nis-EastUS
-          template: ./Vnet-EastUS.json
+          template: ./EastUS-Deployments.json
           
       - uses: azure/arm-deploy@v2
         with:
           resourceGroupName: RG-Dev.Nis-WestUS
-          template: ./Vnet-WestUS.json
+          template: ./WestUS-Deployments.json
             
