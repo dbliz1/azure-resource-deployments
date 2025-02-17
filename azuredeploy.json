@@ -2,18 +2,8 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
-    {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2021-04-01",
-      "location": "eastus",
-      "name": "RG-Dev.Nis-EastUS"
-    },
-    {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2021-04-01",
-      "location": "westus",
-      "name": "RG-Dev.Nis-WestUS"
-    },
+
+    
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2021-05-01",
