@@ -30,6 +30,11 @@ jobs:
             fi
       - uses: azure/arm-deploy@v2
         with:
-          resourceGroupName: github-action-arm-rg
-          template: ./azuredeploy.json
+          resourceGroupName: RG-Dev.Nis-EastUS
+          template: ./Vnet-EastUS.json
           
+      - uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: RG-Dev.Nis-WestUS
+          template: ./Vnet-WestUS.json
+            
