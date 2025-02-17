@@ -1,0 +1,134 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
+      "name": "VNet01-Dev.Nis-EastUS",
+      "location": "eastus",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "Subnet1",
+            "properties": {
+              "addressPrefix": "10.1.1.0/24"
+            }
+          },
+          {
+            "name": "Subnet2",
+            "properties": {
+              "addressPrefix": "10.1.2.0/24"
+            }
+          },
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "10.1.255.0/27"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-05-01",
+      "name": "NSG-EastUS",
+      "location": "eastus",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowRDP",
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInternalTraffic",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRanges": [
+                "80",
+                "443",
+                "3389",
+                "53",
+                "88",
+                "389",
+                "445",
+                "464",
+                "3268",
+                "3269",
+                "135",
+                "49152-65535"
+              ],
+              "sourceAddressPrefix": "10.1.0.0/16",
+              "destinationAddressPrefix": "10.1.0.0/16",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DenyOtherTraffic",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 300,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowIPSec",
+            "properties": {
+              "protocol": "UDP",
+              "sourcePortRange": "*",
+              "destinationPortRanges": [
+                "53",
+                "88",
+                "389",
+                "464",
+                "500",
+                "4500"
+              ],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 250,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowPing",
+            "properties": {
+              "protocol": "ICMP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "10.1.0.0/16",
+              "destinationAddressPrefix": "10.1.0.0/16",
+              "access": "Allow",
+              "priority": 150,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
