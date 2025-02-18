@@ -74,6 +74,7 @@
     },
     "adminPassword": {
       "type": "securestring",
+      "defaultValue": "Passw0rd$$$$",
       "metadata": {
         "description": "Admin password for the VMs"
       }
