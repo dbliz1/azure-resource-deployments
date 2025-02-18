@@ -53,7 +53,7 @@
     },
     "virtualNetworks_VNet01_Dev_Nis_WestUS_name": {
       "type": "string",
-      "defaultValue": "VNet02-Dev.Nis-WestUS",
+      "defaultValue": "VNet01-Dev.Nis-WestUS",
       "metadata": {
         "description": "Name of the Virtual Network in West US"
       }
@@ -67,14 +67,13 @@
     },
     "adminUsername": {
       "type": "string",
-      "defaultValue": "William",
+      "defaultValue": "azureuser",
       "metadata": {
         "description": "Admin username for the VMs"
       }
     },
     "adminPassword": {
       "type": "securestring",
-      "defaultValue": "Passw0rd$$$$",
       "metadata": {
         "description": "Admin password for the VMs"
       }
@@ -168,7 +167,7 @@
       },
       "properties": {
         "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       }
     },
     {
@@ -182,7 +181,7 @@
       },
       "properties": {
         "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       }
     },
     {
