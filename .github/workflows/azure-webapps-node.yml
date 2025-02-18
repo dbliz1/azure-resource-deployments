@@ -37,4 +37,9 @@ jobs:
         with:
           resourceGroupName: RG-Dev.Nis-WestUS
           template: ./WestUS-Deployments.json
+
+      - uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: RG-Dev.Nis-WestUS
+          template: ./WestUS.json
             

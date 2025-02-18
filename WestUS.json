@@ -1,0 +1,401 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_Win10_VM_01_name": {
+      "type": "string",
+      "defaultValue": "Win10-VM-01",
+      "metadata": {
+        "description": "Name of Windows 10 VM 01"
+      }
+    },
+    "virtualMachines_Win10_VM_02_name": {
+      "type": "string",
+      "defaultValue": "Win10-VM-02",
+      "metadata": {
+        "description": "Name of Windows 10 VM 02"
+      }
+    },
+    "networkInterfaces_win10_vm_01_name": {
+      "type": "string",
+      "defaultValue": "win10-vm-01-nic",
+      "metadata": {
+        "description": "Name of network interface for Win10 VM 01"
+      }
+    },
+    "networkInterfaces_win10_vm_02_name": {
+      "type": "string",
+      "defaultValue": "win10-vm-02-nic",
+      "metadata": {
+        "description": "Name of network interface for Win10 VM 02"
+      }
+    },
+    "publicIPAddresses_Win10_VM_01_ip_name": {
+      "type": "string",
+      "defaultValue": "Win10-VM-01-ip",
+      "metadata": {
+        "description": "Name of public IP address for Win10 VM 01"
+      }
+    },
+    "publicIPAddresses_Win10_VM_02_ip_name": {
+      "type": "string",
+      "defaultValue": "Win10-VM-02-ip",
+      "metadata": {
+        "description": "Name of public IP address for Win10 VM 02"
+      }
+    },
+    "networkSecurityGroups_WestUS_name": {
+      "type": "string",
+      "defaultValue": "NSG-WestUS",
+      "metadata": {
+        "description": "Name of NSG in West US"
+      }
+    },
+    "virtualNetworks_VNet01_Dev_Nis_WestUS_name": {
+      "type": "string",
+      "defaultValue": "VNet02-Dev.Nis-WestUS",
+      "metadata": {
+        "description": "Name of the Virtual Network in West US"
+      }
+    },
+    "availabilitySets_Win10VMs_WestUS_name": {
+      "type": "string",
+      "defaultValue": "AS-Win10VMs-WestUS",
+      "metadata": {
+        "description": "Name of the availability set for the Windows 10 VMs"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "William",
+      "metadata": {
+        "description": "Admin username for the VMs"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for the VMs"
+      }
+    }
+  },
+  "variables": {
+    "vnetAddressPrefix": "10.2.0.0/16",
+    "subnet1Prefix": "10.2.1.0/24",
+    "subnet2Prefix": "10.2.2.0/24",
+    "gatewaySubnetPrefix": "10.2.255.0/27"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('networkSecurityGroups_WestUS_name')]",
+      "location": "westus",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowRDP",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_WestUS_name'), 'AllowRDP')]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "AllowInternalTraffic",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_WestUS_name'), 'AllowInternalTraffic')]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "[variables('vnetAddressPrefix')]",
+              "destinationAddressPrefix": "[variables('vnetAddressPrefix')]",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [
+                "80",
+                "443",
+                "3389"
+              ],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "DenyOtherTraffic",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_WestUS_name'), 'DenyOtherTraffic')]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 300,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('publicIPAddresses_Win10_VM_01_ip_name')]",
+      "location": "westus",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('publicIPAddresses_Win10_VM_02_ip_name')]",
+      "location": "westus",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('virtualNetworks_VNet01_Dev_Nis_WestUS_name')]",
+      "location": "westus",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAddressPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": []
+        },
+        "subnets": [
+          {
+            "name": "Subnet1",
+            "properties": {
+              "addressPrefix": "[variables('subnet1Prefix')]"
+            }
+          },
+          {
+            "name": "Subnet2",
+            "properties": {
+              "addressPrefix": "[variables('subnet2Prefix')]"
+            }
+          },
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "[variables('gatewaySubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2024-07-01",
+      "name": "[parameters('availabilitySets_Win10VMs_WestUS_name')]",
+      "location": "westus",
+      "tags": {
+        "AvailabilitySet": "Win10VMs-WestUS"
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('networkInterfaces_win10_vm_01_name')]",
+      "location": "westus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Win10_VM_01_ip_name'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VNet01_Dev_Nis_WestUS_name'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_WestUS_name'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Win10_VM_01_ip_name'))]"
+              },
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VNet01_Dev_Nis_WestUS_name')), '/subnets/Subnet1')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_WestUS_name'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('networkInterfaces_win10_vm_02_name')]",
+      "location": "westus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Win10_VM_02_ip_name'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VNet01_Dev_Nis_WestUS_name'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_WestUS_name'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Win10_VM_02_ip_name'))]"
+              },
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VNet01_Dev_Nis_WestUS_name')), '/subnets/Subnet1')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_WestUS_name'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-07-01",
+      "name": "[parameters('virtualMachines_Win10_VM_01_name')]",
+      "location": "westus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_Win10VMs_WestUS_name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_win10_vm_01_name'))]"
+      ],
+      "tags": {
+        "Win10-VM": "WestUS"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ms"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_Win10VMs_WestUS_name'))]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-10",
+            "sku": "19h2-pro",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[concat(parameters('virtualMachines_Win10_VM_01_name'), '_OsDisk')]",
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_Win10_VM_01_name')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_win10_vm_01_name'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-07-01",
+      "name": "[parameters('virtualMachines_Win10_VM_02_name')]",
+      "location": "westus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_Win10VMs_WestUS_name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_win10_vm_02_name'))]"
+      ],
+      "tags": {
+        "Win10-VM": "WestUS"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ms"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_Win10VMs_WestUS_name'))]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-10",
+            "sku": "19h2-pro",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[concat(parameters('virtualMachines_Win10_VM_02_name'), '_OsDisk')]",
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_Win10_VM_02_name')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_win10_vm_02_name'))]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
